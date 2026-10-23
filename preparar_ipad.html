@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Preparar V15 · iPad</title><meta name="theme-color" content="#071121">
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="./manifest.json"><link rel="apple-touch-icon" href="./icons/icon-192.png">
+<style>
+*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;padding:clamp(15px,4vw,40px);background:radial-gradient(circle at 13% 8%,#233b64,transparent 40%),linear-gradient(150deg,#030813,#071021 65%,#101a2c);color:#f2f6ff;font:16px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+main{width:min(680px,100%);background:#101e33f2;border:1px solid #65758b;border-radius:25px;padding:clamp(22px,4vw,42px);box-shadow:0 30px 75px #0009}
+.eyebrow{color:#e1bf83;letter-spacing:.14em;text-transform:uppercase;font-weight:750;font-size:12px}h1{line-height:1.1;font-size:clamp(29px,5vw,42px);margin:12px 0 16px}p{color:#c4d3e5}strong{color:#ffe1a5}.note{background:#152740;border-left:3px solid #dbb977;border-radius:9px;padding:13px 15px;margin:19px 0}button,a.action{display:inline-block;min-height:50px;line-height:1.2;font:inherit;font-weight:750;border-radius:12px;padding:14px 20px;border:1px solid #d7b375;background:#e4c58d;color:#12203a;cursor:pointer;text-decoration:none;touch-action:manipulation}button:disabled{opacity:.43;cursor:wait}.alt{background:#1c324e!important;color:#f7e9cc!important}#actions{display:flex;gap:10px;flex-wrap:wrap;margin:23px 0 13px}.progress{height:13px;background:#2a3951;border-radius:20px;overflow:hidden;margin-top:18px;border:1px solid #455b79}.bar{height:100%;width:0;background:linear-gradient(90deg,#96b5db,#ebc07b);transition:width .25s}.small{font-size:13px;color:#96aec9}.ok{color:#9ee1b4}.bad{color:#ffb9ab}.steps{margin:18px 0 0;padding-left:25px}.steps li{padding:4px 0}code{color:#f0d29d}
+</style></head><body><main>
+<div class="eyebrow">Escalas del Universo · V15</div><h1>Preparar respaldo para iPad</h1>
+<p>Este instalador guarda <strong>la V15 completa</strong> dentro del iPad: los 50 objetos, sus galerías, datos y todas las funciones del juego. El contenido es idéntico al de computadora.</p>
+<div class="note" id="instructions"><strong>Primero instala la aplicación:</strong><ol class="steps"><li>Abre esta página en <strong>Safari</strong> con internet.</li><li>Pulsa <strong>Compartir → Añadir a pantalla de inicio</strong>.</li><li>Abre el nuevo icono <strong>Escalas V15</strong> desde el inicio.</li><li>Ahí pulsa «Descargar recursos» y espera a que termine.</li></ol></div>
+<p id="status" role="status" aria-live="polite">Comprobando el almacenamiento...</p>
+<div class="progress" role="progressbar" aria-label="Preparación sin conexión" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="track"><div class="bar" id="bar"></div></div>
+<p id="detail" class="small">La descarga inicial puede ser cercana a 200 MB. Se realiza una sola vez y requiere espacio libre suficiente.</p>
+<div id="actions"><button id="prepare" disabled>Descargar recursos para usar sin internet</button><a id="open" href="./index.html" class="action alt" hidden>Entrar a la V15</a></div>
+<p class="small">Antes de la actividad, activa <strong>modo avión</strong>, cierra la aplicación, ábrela desde su icono y comprueba que funcione. Si el iPad elimina el almacenamiento de la aplicación, habrá que prepararla otra vez conectado a internet.</p>
+</main><script>
+'use strict';
+const CACHE_NAME='escalas-universo-v15-ipad-20261023-r1';
+const RESOURCES=[{"path":"./index.html","size":40909006},{"path":"./assets/pale_blue_dot/pale_blue_dot.png","size":431079},{"path":"./assets/pale_blue_dot/earth_from_saturn.png","size":119475},{"path":"./assets/cosmos/panorama_continua.webp","size":1681050},{"path":"./assets/gifs/obj_09_02.gif","size":1835868},{"path":"./assets/gifs/obj_23_08.gif","size":23036181},{"path":"./assets/gifs/obj_01_03.gif","size":5312920},{"path":"./assets/gifs/obj_23_03.gif","size":7189596},{"path":"./assets/gifs/obj_04_03.gif","size":476922},{"path":"./assets/gifs/obj_04_02.gif","size":831990},{"path":"./assets/gifs/obj_01_04.gif","size":654117},{"path":"./assets/gifs/obj_03_04.gif","size":34822},{"path":"./assets/gifs/obj_09_03.gif","size":987634},{"path":"./assets/gifs/obj_50_01.gif","size":31866},{"path":"./assets/gifs/obj_10_04.gif","size":49344061},{"path":"./assets/gifs/obj_13_01.gif","size":7792742},{"path":"./assets/gifs/obj_27_04.gif","size":39018597},{"path":"./assets/gifs/obj_06_03.gif","size":6833831},{"path":"./assets/gifs/obj_27_03.gif","size":7750482},{"path":"./assets/gifs/obj_23_04.gif","size":1997336},{"path":"./assets/gifs/obj_03_03.gif","size":196931},{"path":"./assets/gifs/obj_23_05.gif","size":2051005},{"path":"./manifest.json","size":624},{"path":"./service-worker.js","size":1333},{"path":"./icons/icon-192.png","size":2117},{"path":"./icons/icon-512.png","size":5998}];
+const totalBytes=RESOURCES.reduce((n,r)=>n+r.size,0);
+const stat=document.getElementById('status'),detail=document.getElementById('detail');
+const btn=document.getElementById('prepare'),openBtn=document.getElementById('open'),bar=document.getElementById('bar'),track=document.getElementById('track');
+const standalone=window.navigator.standalone===true||window.matchMedia('(display-mode: standalone)').matches;
+function message(t,type=''){stat.textContent=t;stat.className=type;}
+function draw(count,bytes){const pct=Math.round(bytes/totalBytes*100);bar.style.width=pct+'%';track.setAttribute('aria-valuenow',pct);detail.textContent=count+' de '+RESOURCES.length+' recursos · '+pct+'% · aproximadamente '+Math.round(bytes/1048576)+' de '+Math.round(totalBytes/1048576)+' MiB';}
+function resourceUrl(path){return new URL(path,location.href).href;}
+async function alreadyCached(cache){let bytes=0,n=0;for(const r of RESOURCES){const response=await cache.match(resourceUrl(r.path));if(response&&response.ok){bytes+=r.size;n++;}}return {n,bytes};}
+async function getCache(){if(!('serviceWorker' in navigator)||!('caches' in window))throw Error('Es necesario abrir esta página desde una dirección HTTPS en Safari. La vista previa de Archivos no permite esta instalación.');
+let registration=await navigator.serviceWorker.getRegistration('./');
+if(!registration)registration=await navigator.serviceWorker.register('./service-worker.js',{scope:'./'});
+await navigator.serviceWorker.ready;
+return caches.open(CACHE_NAME);}
+async function inspect(){try{const cache=await getCache();const d=await alreadyCached(cache);draw(d.n,d.bytes);btn.disabled=false;
+  if(d.n===RESOURCES.length){message('✓ Respaldo completo. Todos los archivos están guardados en este iPad.','ok');openBtn.hidden=false;btn.textContent='Comprobar de nuevo';
+    if(standalone)setTimeout(()=>location.replace('./index.html'),550);
+  }else{message(standalone?'Este iPad aún necesita preparar los recursos.':'Abre esta página desde el icono instalado para guardar los archivos en la aplicación.');btn.textContent=d.n?'Continuar descarga':'Descargar recursos para usar sin internet';}
+}catch(e){message('No se pudo iniciar: '+e.message,'bad');detail.textContent='Asegúrate de abrir la dirección HTTPS, no el HTML desde Archivos.';}}
+async function prepare(){btn.disabled=true;openBtn.hidden=true;
+  try{const cache=await getCache();if(navigator.storage?.persist){try{await navigator.storage.persist();}catch(_){}}
+  let done=0,bytes=0;for(const r of RESOURCES){let saved=await cache.match(resourceUrl(r.path));if(!saved||!saved.ok){
+    message('Descargando: '+r.path.replace('./',''));await cache.add(resourceUrl(r.path));
+    saved=await cache.match(resourceUrl(r.path));if(!saved||!saved.ok)throw Error('No se pudo conservar '+r.path);
+  }done++;bytes+=r.size;draw(done,bytes);}
+  message('✓ Preparación completada. Ya puedes desconectar el iPad de internet.','ok');openBtn.hidden=false;btn.textContent='Comprobar de nuevo';
+}catch(e){message('La descarga se interrumpió: '+e.message+' · Conéctate de nuevo y pulsa continuar.','bad');btn.textContent='Continuar descarga';}
+finally{btn.disabled=false;}}
+btn.addEventListener('click',prepare);inspect();
+</script></body></html>
